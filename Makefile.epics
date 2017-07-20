@@ -18,18 +18,19 @@ endif
 
 CMAKE_GENERATOR=Visual Studio $(VS_ARCH)
 
-CMAKE_CONFIG_FLAGS += -DFLATBUFFERS_INCLUDE_DIR:STRING="$(EPICS_ROOT)/support/flatbuffers/master/include"
-CMAKE_CONFIG_FLAGS += -DFLATBUFFERS_FLATC_EXECUTABLE:STRING="$(EPICS_ROOT)/support/flatbuffers/master/bin/$(EPICS_HOST_ARCH)/flatc.exe"
-CMAKE_CONFIG_FLAGS += -DRDKAFKA_INCLUDE_DIR:STRING="$(EPICS_ROOT)/support/librdkafka/master/include"
-CMAKE_CONFIG_FLAGS += -DRDKAFKA_LIBRARIES:STRING="$(EPICS_ROOT)/support/librdkafka/master/lib/$(EPICS_HOST_ARCH)/rdkafka.lib"
-CMAKE_CONFIG_FLAGS += -DPCREX_INCLUDE_DIRS:STRING="$(EPICS_ROOT)/support/pcre/master/include"
-CMAKE_CONFIG_FLAGS += -DPCREX_LIBRARIES:STRING="$(EPICS_ROOT)/support/pcre/master/lib/$(EPICS_HOST_ARCH)/pcre.lib"
-CMAKE_CONFIG_FLAGS += -DRAPIDJSON_INCLUDE_DIR:STRING="$(EPICS_ROOT)/libraries/master/rapidjson/include" 
-CMAKE_CONFIG_FLAGS += -DFMT_INCLUDE_DIR:STRING="$(EPICS_ROOT)/libraries/master/fmt/"
-CMAKE_CONFIG_FLAGS += -DFMT_SRC:STRING="$(EPICS_ROOT)/libraries/master/fmt/fmt/format.cc"
-CMAKE_CONFIG_FLAGS += -Dpath_include_streaming_data_types:STRING="$(EPICS_ROOT)/support/streaming_data_types/master"
+CMAKE_CONFIG_FLAGS += -DFLATBUFFERS_INCLUDE_DIR=$(EPICS_KIT_ROOT)/support/flatbuffers/master/include
+CMAKE_CONFIG_FLAGS += -DFLATBUFFERS_FLATC_EXECUTABLE=$(EPICS_KIT_ROOT)/support/flatbuffers/master/bin/$(EPICS_HOST_ARCH)/flatc.exe
+CMAKE_CONFIG_FLAGS += -DRDKAFKA_INCLUDE_DIR=$(EPICS_KIT_ROOT)/support/librdkafka/master/include
+CMAKE_CONFIG_FLAGS += -DRDKAFKA_LIBRARIES=$(EPICS_KIT_ROOT)/support/librdkafka/master/lib/$(EPICS_HOST_ARCH)/rdkafka.lib
+CMAKE_CONFIG_FLAGS += -DPCREX_INCLUDE_DIRS=$(EPICS_KIT_ROOT)/support/pcre/master/include
+CMAKE_CONFIG_FLAGS += -DPCREX_LIBRARIES=$(EPICS_KIT_ROOT)/support/pcre/master/lib/$(EPICS_HOST_ARCH)/pcre.lib
+CMAKE_CONFIG_FLAGS += -DRAPIDJSON_INCLUDE_DIR=$(EPICS_KIT_ROOT)/libraries/master/rapidjson/include
+CMAKE_CONFIG_FLAGS += -DFMT_INCLUDE_DIR=$(EPICS_KIT_ROOT)/libraries/master/fmt/
+CMAKE_CONFIG_FLAGS += -DFMT_SRC=$(EPICS_KIT_ROOT)/libraries/master/fmt/fmt/format.cc
+CMAKE_CONFIG_FLAGS += -Dpath_include_streaming_data_types=$(EPICS_KIT_ROOT)/support/streaming_data_types/master
+CMAKE_CONFIG_FLAGS += -Depicsv4_dir=$(EPICS_KIT_ROOT)/support/EPICS_V4/master
 # Need to be explicit with nt.lib or Windows may gets its own unrelated one from the WIN32 SDK!
-CMAKE_CONFIG_FLAGS += -Dpath_library_epics_NT:STRING="$(EPICS_ROOT)/support/EPICS_V4/master/normativeTypesCPP/lib/$(EPICS_HOST_ARCH)/nt.lib"
+CMAKE_CONFIG_FLAGS += -Dpath_library_epics_NT=$(EPICS_KIT_ROOT)/support/EPICS_V4/master/normativeTypesCPP/lib/$(EPICS_HOST_ARCH)/nt.lib
 endif
 
 ifneq ($(findstring debug,$(EPICS_HOST_ARCH)),)
@@ -45,18 +46,21 @@ endif
 
 
 install:
-	cmake . -Bcmake-build -G "$(CMAKE_GENERATOR)" -DCMAKE_INSTALL_PREFIX:STRING="$(EPICS_ROOT)/support/forward_epics_to_kafka/master/bin/$(EPICS_HOST_ARCH)" $(CMAKE_CONFIG_FLAGS)
-	cmake --build cmake-build --config $(CMAKE_CONFIG) $(CMAKE_BUILD_FLAGS) --target install
+	cmake . -B_build -G "$(CMAKE_GENERATOR)" -DCMAKE_INSTALL_PREFIX=$(EPICS_ROOT)/support/forward_epics_to_kafka/master/bin/$(EPICS_HOST_ARCH) $(CMAKE_CONFIG_FLAGS)
+	cmake --build _build --config $(CMAKE_CONFIG) $(CMAKE_BUILD_FLAGS) --target install
 
 
-clean::
+clean:
 ifneq ($(findstring linux,$(EPICS_HOST_ARCH)),)
 	$(MAKE) -f Makefile clean
-else
-	-msbuild forward-epics-to-kafka.sln /t:clean /nologo /verbosity:quiet /p:Configuration=$(CMAKE_CONFIG) /p:Platform=$(PLATFORM)
-endif
 	-$(RM) CMakeCache.txt cmake_install.cmake
-	-$(RM) $(call rfind, ., *.sln *.vcxproj *.vcxproj.filters cmake_install.cmake)
 	-$(RMDIR) CMakeFiles
+else
+	-$(RMDIR) /s /q _build
+endif
+
 
 uninstall:
+ifneq ($(findstring windows,$(EPICS_HOST_ARCH)),)
+	-$(RMDIR) /s /q  bin
+endif
