@@ -143,7 +143,7 @@ endif()
 
 target_link_libraries(${tgt} ${libraries_common})
 
-
+install(TARGETS ${tgt} DESTINATION .)
 
 if (have_gtest)
 add_subdirectory(tests)
