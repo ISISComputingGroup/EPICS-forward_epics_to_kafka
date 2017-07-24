@@ -16,6 +16,7 @@ endif()
 
 if (DEFINED ENV{EPICS_BASE})
 	set(epicsbase_dir      "$ENV{EPICS_BASE}")
+	message(STATUS "Hello ${epicsbase_dir}")
 	# It is NOT an error if this variable is not set.
 	# We want to be able to discover it using standard CMAKE_PATH variables too.
 
