@@ -1,12 +1,24 @@
 TOP=../../..
 
-VS_VERS=$(filter %.0,$(subst \, ,$(VisualStudioVersion)))
-VS_MAJOR=$(word 1,$(subst ., ,$(VS_VERS)))
-
 ifneq ($(findstring linux,$(EPICS_HOST_ARCH)),)
 CMAKE_GENERATOR=Unix Makefiles
+
+CMAKE_CONFIG_FLAGS += -DFLATBUFFERS_INCLUDE_DIR=$(EPICS_KIT_ROOT)/support/flatbuffers/master/include
+CMAKE_CONFIG_FLAGS += -DFLATBUFFERS_FLATC_EXECUTABLE=$(EPICS_KIT_ROOT)/support/flatbuffers/master/bin/$(EPICS_HOST_ARCH)/flatc
+CMAKE_CONFIG_FLAGS += -DRDKAFKA_INCLUDE_DIR=$(EPICS_KIT_ROOT)/support/librdkafka/master/include
+CMAKE_CONFIG_FLAGS += -DRDKAFKA_LIBRARIES=$(EPICS_KIT_ROOT)/support/librdkafka/master/lib/$(EPICS_HOST_ARCH)/librdkafka.so
+CMAKE_CONFIG_FLAGS += -DPCREX_INCLUDE_DIRS=$(EPICS_KIT_ROOT)/support/pcre/master/include
+CMAKE_CONFIG_FLAGS += -DPCREX_LIBRARIES=$(EPICS_KIT_ROOT)/support/pcre/master/lib/$(EPICS_HOST_ARCH)/libpcre.so
+CMAKE_CONFIG_FLAGS += -DRAPIDJSON_INCLUDE_DIR=$(EPICS_KIT_ROOT)/libraries/master/rapidjson/include
+CMAKE_CONFIG_FLAGS += -DFMT_INCLUDE_DIR=$(EPICS_KIT_ROOT)/libraries/master/fmt/
+CMAKE_CONFIG_FLAGS += -DFMT_SRC=$(EPICS_KIT_ROOT)/libraries/master/fmt/fmt/format.cc
+CMAKE_CONFIG_FLAGS += -Dpath_include_streaming_data_types=$(EPICS_KIT_ROOT)/support/streaming_data_types/master
+CMAKE_CONFIG_FLAGS += -Depicsv4_dir=$(EPICS_KIT_ROOT)/support/EPICS_V4/master
+
 else
 ifneq ($(findstring windows,$(EPICS_HOST_ARCH)),)
+VS_VERS=$(filter %.0,$(subst \, ,$(VisualStudioVersion)))
+VS_MAJOR=$(word 1,$(subst ., ,$(VS_VERS)))
 VS_ARCH=$(VS_MAJOR) Win64
 PLATFORM=x64
 CMAKE_CONFIG_FLAGS=$(CMAKE_CONFIG_FLAGS_WIN32)
