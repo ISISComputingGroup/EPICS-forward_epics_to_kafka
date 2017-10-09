@@ -314,9 +314,9 @@ std::pair<int, std::unique_ptr<MainOpt>> parse_opt(int argc, char **argv) {
         "      Log to Graylog via graylog_logger library.\n"
         "\n"
         "  -v\n"
-        "      Decrease log_level by one step.  Default log_level is 3.\n"
+        "      Increase log_level by one step.  Default log_level is 3.\n"
         "  -Q\n"
-        "      Increase log_level by one step.\n"
+        "      Decrease log_level by one step.\n"
         "\n",
         opt.brokers_as_comma_list());
     ret.first = 1;

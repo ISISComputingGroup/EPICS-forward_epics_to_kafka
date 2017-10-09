@@ -163,12 +163,15 @@ void ConfigCB::operator()(std::string const &msg) {
       main.channel_stop(channel);
     }
   }
+  if (cmd == "stop_all") {
+    main.stop_all();
+  }
   if (cmd == "exit") {
     main.forwarding_exit();
   }
 }
 
-int Main::streams_clear() {
+void Main::streams_clear() {
   CLOG(7, 1, "Main::streams_clear()  begin");
   std::unique_lock<std::mutex> lock(streams_mutex);
   if (streams.size() > 0) {
@@ -180,7 +183,6 @@ int Main::streams_clear() {
     streams.clear();
   }
   CLOG(7, 1, "Main::streams_clear()  end");
-  return 0;
 }
 
 int Main::conversion_workers_clear() {
@@ -322,8 +324,7 @@ void Main::report_stats(int dt) {
 
 void Main::check_stream_status() {
   std::unique_lock<std::mutex> lock(streams_mutex);
-  auto it = streams.begin();
-  while (it != streams.end()) {
+  for (auto it = streams.begin(); it != streams.end();) {
     auto &s = *it;
     if (s->status() < 0) {
       s->stop();
@@ -334,12 +335,13 @@ void Main::check_stream_status() {
   }
 }
 
-int Main::channel_stop(std::string const &channel) {
+/**
+ * Stops specified channel and erases all data in the stream.
+ * @param channel The channel name to stop.
+ */
+void Main::channel_stop(std::string const &channel) {
   std::unique_lock<std::mutex> lock(streams_mutex);
-  auto it = streams.begin();
-  while (true) {
-    if (it == streams.end())
-      break;
+  for (auto it = streams.begin(); it != streams.end();) {
     auto &s = *it;
     if (s->channel_info().channel_name == channel) {
       it = streams.erase(it);
@@ -347,7 +349,14 @@ int Main::channel_stop(std::string const &channel) {
       ++it;
     }
   }
-  return 0;
+}
+
+/**
+ * Clears all data from streams.
+ */
+void Main::stop_all() {
+  std::unique_lock<std::mutex> lock(streams_mutex);
+  streams.clear();
 }
 
 int Main::mapping_add(rapidjson::Value &mapping) {

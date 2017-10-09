@@ -38,8 +38,9 @@ public:
   void report_stats(int started_in_current_round);
   void stop();
   void check_stream_status();
-  int streams_clear();
-  int channel_stop(std::string const &channel);
+  void streams_clear();
+  void channel_stop(std::string const &channel);
+  void stop_all();
   int conversion_workers_clear();
   int converters_clear();
   std::unique_lock<std::mutex> get_lock_streams();
