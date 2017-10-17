@@ -2,6 +2,7 @@
 #include "ConversionWorker.h"
 #include "ForwarderInfo.h"
 #include "MainOpt.h"
+#include "Streams.h"
 #include <algorithm>
 #include <atomic>
 #include <list>
@@ -36,11 +37,6 @@ public:
   int mapping_add(rapidjson::Value &mapping);
   void forwarding_exit();
   void report_stats(int started_in_current_round);
-  void stop();
-  void check_stream_status();
-  void streams_clear();
-  void channel_stop(std::string const &channel);
-  void stop_all();
   int conversion_workers_clear();
   int converters_clear();
   std::unique_lock<std::mutex> get_lock_streams();
@@ -56,7 +52,7 @@ private:
   std::mutex converters_mutex;
   std::map<std::string, std::weak_ptr<Converter>> converters;
   std::mutex streams_mutex;
-  std::vector<std::unique_ptr<Stream>> streams;
+//  std::vector<std::unique_ptr<Stream>> streams;
   std::mutex conversion_workers_mx;
   std::vector<std::unique_ptr<ConversionWorker>> conversion_workers;
   ConversionScheduler conversion_scheduler;
@@ -67,6 +63,7 @@ private:
   std::atomic<int32_t> forwarding_run{1};
   std::atomic<ForwardingStatus> forwarding_status{ForwardingStatus::NORMAL};
   std::unique_ptr<stub_curl> curl;
+  Streams::Streams streams;
 };
 
 extern std::atomic<uint64_t> g__total_msgs_to_kafka;
