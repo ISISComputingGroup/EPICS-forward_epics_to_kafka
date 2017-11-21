@@ -21,36 +21,55 @@ These libraries are expected in the ESS dev default locations or set via
 environment variables (see `src/CMakeLists.txt`):
 
 - EPICSv4
-- librdkafka
-- flatbuffers (headers and `flatc` executable)
-- RapidJSON (header only)
-- fmt (`fmt/format.h` and `fmt/format.cc`) <https://github.com/fmtlib/fmt>
 - `streaming-data-types`, easiest if cloned parallel to this repository.
   <https://github.com/ess-dmsc/streaming-data-types>
-- `graylog_logger` <https://github.com/ess-dmsc/graylog-logger>
 - pcre2 (e.g. `yum install pcre2 pcre2-devel` or `brew install pcre2`).
   pcre is supported equally well.
 
 Tooling
+- conan
 - cmake (minimum tested is 2.8.11)
 - C++ compiler with c++11 support
 - Doxygen if you would like to `make docs`
 
-Others (optional)
-- Google Test  (git clone `https://github.com/google/googletest.git` in
-  parallel to this repository, or give the repository location in
-  `GOOGLETEST_REPOSITORY_DIR` or in `CMAKE_INCLUDE_PATH` and specify
-  `cmake -DREQUIRE_GTEST=1`)
+
+### Conan repositories
+
+The following remote repositories are required to be configured:
+
+- https://api.bintray.com/conan/ess-dmsc/conan
+- https://api.bintray.com/conan/conan-community/conan
+
+You can add them by running
+
+```
+conan remote add <local-name> <remote-url>
+```
+
+where `<local-name>` must be substituted by a locally unique name. Configured
+remotes can be listed with `conan remote list`.
 
 
 ### Build
 
-Assuming you have `make` and all dependencies in standard locations:
+Assuming you have `make`:
+
 ```
-cmake <path-to-source>
+conan install <path-to-source>/conan --build=missing
+cmake <path-to-source> [-DREQUIRE_GTEST=TRUE]
 make
-make docs
+make docs  # optional
 ```
+
+
+#### Running on macOS
+
+When using Conan on macOS, due to the way paths to dependencies are handled,
+the `activate_run.sh` file must be sourced before running the application. The
+`deactivate_run.sh` can be sourced to undo the changes afterwards. This has not
+been tested yet, and it is possible that EPICS libraries cannot be found.
+Please report any issues you encounter when running this setup.
+
 
 #### Dependencies in custom locations
 
@@ -75,6 +94,7 @@ Here follows an example where all dependencies are in non-standard locations.
 Also EPICS is a custom build from source.
 No additional environment variables are needed.
 Only a few basic dependencies (like PCRE) are in standard locations.
+
 ```
 export D1=$HOME/software/;
 export EPICS_MODULES_PATH=$D1/epics/EPICS-CPP-4.6.0;
@@ -95,21 +115,27 @@ or `EPICS_BASES_PATH` because we give them explicitly in `CMAKE_*_PATH`.
 ### Tests
 
 Run
+
 ```
 ./tests/tests
 ```
 
 #### Tests with actual traffic
+
 The tests which involve actual EPICS and Kafka traffic are disabled by default.
 They can be run with:
+
 ```
 ./tests/tests -- --gtest_filter=Remote
 ```
+
 Please note that you probably have to specify your broker, so a more complete
 command looks like:
+
 ```
 ./tests/tests --broker //<host> --broker-config //<host>/tmp-commands -- --gtest_filter=Remote\*
 ```
+
 Please note also that you need to have an EPICS PV running:
 - Normative Types Array Double, name: `forwarder_test_nt_array_double`
 - Normative Types Array Int32, name: `forwarder_test_nt_array_int32`
@@ -157,6 +183,7 @@ commands.  Configuration updates are JSON messages.  For example:
 
 Example which adds 2 EPICS PVs via `pva` (default) and a third EPICS variable
 using `ca` Channel Access:
+
 ```
 {
   "cmd": "add",
@@ -193,6 +220,7 @@ the configuration file or on the command line is used.
 
 
 Exit the forwarder:
+
 ```
 {"cmd": "exit"}
 ```
@@ -201,14 +229,17 @@ Exit the forwarder:
 ### Using a configuration file
 
 The forwarding can be also set up with a configuration file:
+
 ```bash
 ./forward-epics-to-kafka --config-file <your-file>
 ```
 
 with e.g:
+
 ```json
 {
-	"broker": "kafkabroker:9092",
+	"broker": "//kafkabroker:9092",
+	"status-uri": "//kafkabroker:9092/the_status_topic",
 	"streams": [
 		{
 			"channel": "Epics_PV_name",
@@ -223,12 +254,16 @@ The following keys can be set in the configuration file at the top level.
 Given are the defaults.
 
 - `broker` (string)
-  - `localhost:9092`
+  - `//localhost:9092`
   - Default Kafka host to send the converted data to.
 
 - `broker-config` (string)
   - `//localhost:9092/forward_epics_to_kafka_commands`
   - URI of the Kafka topic which should be monitored for commands.
+
+- `status-uri` (string)
+  - `(empty)`
+  - URI of the Kafka topic where it should produce status messages.
 
 - `conversion-threads` (int)
   - 1

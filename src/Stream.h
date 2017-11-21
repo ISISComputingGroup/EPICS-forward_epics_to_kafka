@@ -9,6 +9,7 @@
 #include <array>
 #include <atomic>
 #include <memory>
+#include <rapidjson/document.h>
 #include <string>
 #include <vector>
 
@@ -39,6 +40,7 @@ public:
   ~ConversionPath();
   int emit(std::unique_ptr<FlatBufs::EpicsPVUpdate> up);
   std::atomic<uint32_t> transit{0};
+  rapidjson::Document status_json() const;
 
 private:
   std::shared_ptr<Converter> converter;
@@ -63,8 +65,15 @@ public:
   void error_in_epics();
   int status();
   ChannelInfo const &channel_info();
+  size_t emit_queue_size();
+  rapidjson::Document status_json();
   using mutex = std::mutex;
   using ulock = std::unique_lock<mutex>;
+
+protected:
+  // This constructor is to enable unit-testing.
+  // Not to be used outside of testing.
+  explicit Stream(ChannelInfo channel_info);
 
 private:
   /// Each Epics update is converted by each Converter in the list
