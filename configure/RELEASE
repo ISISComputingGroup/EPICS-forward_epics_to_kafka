@@ -39,6 +39,7 @@ FMT=$(EPICS_ROOT)/libraries/master/fmt
 RAPIDJSON=$(EPICS_ROOT)/libraries/master/rapidjson
 
 EV4_BASE=$(SUPPORT)/EPICS_V4/master
+EPICS_MODULES_PATH=$(EV4_BASE)
 PVDATABASE=$(EV4_BASE)/pvDatabaseCPP
 PVASRV=$(EV4_BASE)/pvaSrv
 PVACLIENT=$(EV4_BASE)/pvaClientCPP
@@ -47,7 +48,6 @@ NORMATIVETYPES=$(EV4_BASE)/normativeTypesCPP
 PVDATA=$(EV4_BASE)/pvDataCPP
 PVCOMMON=$(EV4_BASE)/pvCommonCPP
 
-EPICS_MODULES_PATH=$(EV4_BASE)
 
 # EPICS_BASE should appear last so earlier modules can override stuff:
 EPICS_BASE = C:/Instrument/Apps/EPICS/base/master
