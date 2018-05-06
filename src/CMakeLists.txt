@@ -44,6 +44,7 @@ ${path_library_epics_pvAccess}
 ${path_library_epics_NT}
 ${RDKAFKA_LIBRARIES}
 ${CURL_LIBRARIES}
+${EXTRA_LIBRARIES}
 )
 
 if (UNIX)
