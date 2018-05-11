@@ -10,7 +10,7 @@ VS_MAJOR=$(word 1,$(subst ., ,$(VS_VERS)))
 INSTALL_DIR=$(TOP)/install/$(EPICS_HOST_ARCH)
 # -DEXTRA_LIBRARIES="$(OPENSSL)/lib/$(EPICS_HOST_ARCH)/libssl.a;$(ZLIB)/lib/$(EPICS_HOST_ARCH)/libzlib.a"
 ifeq ($(OS_CLASS),WIN32)
-EXTRA_LIBRARIES = $(ZLIB)/lib/$(EPICS_HOST_ARCH)/libzlib.a
+EXTRA_LIBRARIES = $(ZLIB)/lib/$(EPICS_HOST_ARCH)/zlib.lib
 EXTRA_LIBRARIES += $(foreach elib,$(EPICS_BASE_IOC_LIBS),$(EPICS_BASE)/lib/$(EPICS_HOST_ARCH)/$(elib).lib)
 else
 EXTRA_LIBRARIES = /usr/lib64/libssl.so /usr/lib64/libcrypto.so;/usr/lib64/libsasl2.so $(ZLIB)/lib/$(EPICS_HOST_ARCH)/libzlib.a /usr/lib64/libdl.so

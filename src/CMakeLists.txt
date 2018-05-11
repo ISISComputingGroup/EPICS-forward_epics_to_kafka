@@ -14,7 +14,9 @@ find_package(StaticData COMPONENTS "schema-config-global.json")
 find_package(GitCommitExtract)
 
 
+if (UNIX)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -fPIC -g")
+endif()
 
 if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS "4.9.3")
 else ()
@@ -44,7 +46,7 @@ ${path_library_epics_pvAccess}
 ${path_library_epics_NT}
 ${RDKAFKA_LIBRARIES}
 ${CURL_LIBRARIES}
-${EXTRA_LIBRARIES}
+${FETK_EXTRA_LIBRARIES}
 )
 
 if (UNIX)
