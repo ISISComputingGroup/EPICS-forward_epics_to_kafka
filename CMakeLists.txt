@@ -22,6 +22,7 @@ if (${FETK_BUILD_TYPE} STREQUAL "STATIC")
       string(REGEX REPLACE "/MD" "/MT" ${flag_var} "${${flag_var}}")
     endif()
   endforeach()
+  add_definitions(-DLIBRDKAFKA_STATICLIB -DEPICS_DLL_NO)
 endif()
 
 

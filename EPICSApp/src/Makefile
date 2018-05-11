@@ -23,7 +23,7 @@ blank :=
 space := $(blank) $(blank)
 CMAKE_CONFIG_FLAGS += -DFETK_EXTRA_LIBRARIES="$(subst $(space),;,$(EXTRA_LIBRARIES))"
 ifneq ($(findstring static,$(EPICS_HOST_ARCH)),)
-CMAKE_CONFIG_FLAGS += -DFETK_BUILD_TYPE=STATIC
+CMAKE_CONFIG_FLAGS += -DFETK_BUILD_TYPE=STATIC -DRDKAFKA_BUILD_TYPE:STRING=STATIC
 endif
 
 ifneq ($(findstring linux,$(EPICS_HOST_ARCH)),)
@@ -44,9 +44,6 @@ CMAKE_CONFIG=Debug
 else
 CMAKE_CONFIG_FLAGS += -DCMAKE_BUILD_TYPE:STRING=RelWithDebInfo
 CMAKE_CONFIG=RelWithDebInfo
-endif
-ifneq ($(findstring static,$(EPICS_HOST_ARCH)),)
-CMAKE_CONFIG_FLAGS += -DRDKAFKA_BUILD_TYPE:STRING=STATIC
 endif
 
 include $(TOP)/configure/RULES
