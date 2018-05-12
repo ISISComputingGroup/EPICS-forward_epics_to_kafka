@@ -126,7 +126,7 @@ target_compile_definitions(${tgt} PRIVATE ${compile_defs_common})
 target_include_directories(${tgt} PRIVATE ${path_include_common})
 
 if (WIN32)
-    target_link_libraries(${tgt} Ws2_32.lib)
+    target_link_libraries(${tgt} Ws2_32.lib dbghelp.lib)
 endif(WIN32)
 
 if (${GRAYLOGLOGGER_FOUND} AND ${USE_GRAYLOG_LOGGER})

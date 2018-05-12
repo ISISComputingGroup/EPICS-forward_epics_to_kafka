@@ -8,12 +8,13 @@ VS_VERS=$(filter %.0,$(subst \, ,$(VisualStudioVersion)))
 VS_MAJOR=$(word 1,$(subst ., ,$(VS_VERS)))
 
 INSTALL_DIR=$(TOP)/install/$(EPICS_HOST_ARCH)
-# -DEXTRA_LIBRARIES="$(OPENSSL)/lib/$(EPICS_HOST_ARCH)/libssl.a;$(ZLIB)/lib/$(EPICS_HOST_ARCH)/libzlib.a"
+
 ifeq ($(OS_CLASS),WIN32)
-EXTRA_LIBRARIES = $(ZLIB)/lib/$(EPICS_HOST_ARCH)/zlib.lib
+EXTRA_LIBRARIES = $(OPENSSL)/lib/$(EPICS_HOST_ARCH)/ssleay32.lib $(OPENSSL)/lib/$(EPICS_HOST_ARCH)/libeay32.lib $(ZLIB)/lib/$(EPICS_HOST_ARCH)/zlib.lib
 EXTRA_LIBRARIES += $(foreach elib,$(EPICS_BASE_IOC_LIBS),$(EPICS_BASE)/lib/$(EPICS_HOST_ARCH)/$(elib).lib)
 else
-EXTRA_LIBRARIES = /usr/lib64/libssl.so /usr/lib64/libcrypto.so;/usr/lib64/libsasl2.so $(ZLIB)/lib/$(EPICS_HOST_ARCH)/libzlib.a /usr/lib64/libdl.so
+# $(OPENSSL)/lib/$(EPICS_HOST_ARCH)/libssl.a
+EXTRA_LIBRARIES = $(ZLIB)/lib/$(EPICS_HOST_ARCH)/libzlib.a /usr/lib64/libssl.so /usr/lib64/libcrypto.so /usr/lib64/libsasl2.so /usr/lib64/libdl.so
 EXTRA_LIBRARIES += $(foreach elib,$(EPICS_BASE_IOC_LIBS),$(EPICS_BASE)/lib/$(EPICS_HOST_ARCH)/lib$(elib).a)
 endif
 CMAKE_BUILD_FLAGS=
@@ -22,6 +23,7 @@ CMAKE_CONFIG_FLAGS = -DEPICS_MODULES_PATH="$(EV4_BASE)" -DCMAKE_LIBRARY_PATH="$(
 blank :=
 space := $(blank) $(blank)
 CMAKE_CONFIG_FLAGS += -DFETK_EXTRA_LIBRARIES="$(subst $(space),;,$(EXTRA_LIBRARIES))"
+
 ifneq ($(findstring static,$(EPICS_HOST_ARCH)),)
 CMAKE_CONFIG_FLAGS += -DFETK_BUILD_TYPE=STATIC -DRDKAFKA_BUILD_TYPE:STRING=STATIC
 endif
