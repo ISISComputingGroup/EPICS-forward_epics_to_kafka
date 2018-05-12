@@ -14,8 +14,9 @@ EXTRA_LIBRARIES = $(OPENSSL)/lib/$(EPICS_HOST_ARCH)/ssleay32.lib $(OPENSSL)/lib/
 EXTRA_LIBRARIES += $(foreach elib,$(EPICS_BASE_IOC_LIBS),$(EPICS_BASE)/lib/$(EPICS_HOST_ARCH)/$(elib).lib)
 else
 # $(OPENSSL)/lib/$(EPICS_HOST_ARCH)/libssl.a
-EXTRA_LIBRARIES = $(ZLIB)/lib/$(EPICS_HOST_ARCH)/libzlib.a /usr/lib64/libssl.so /usr/lib64/libcrypto.so /usr/lib64/libsasl2.so /usr/lib64/libdl.so
+EXTRA_LIBRARIES = $(ZLIB)/lib/$(EPICS_HOST_ARCH)/libzlib.a 
 EXTRA_LIBRARIES += $(foreach elib,$(EPICS_BASE_IOC_LIBS),$(EPICS_BASE)/lib/$(EPICS_HOST_ARCH)/lib$(elib).a)
+EXTRA_LIBRARIES += /usr/lib64/libssl.so /usr/lib64/libcrypto.so /usr/lib64/libsasl2.so /usr/lib64/libreadline.so /usr/lib64/libdl.so
 endif
 CMAKE_BUILD_FLAGS=
 CMAKE_CONFIG_FLAGS = -DEPICS_MODULES_PATH="$(EV4_BASE)" -DCMAKE_LIBRARY_PATH="$(LIBRDKAFKA)/lib/$(EPICS_HOST_ARCH);$(EPICS_BASE)/lib/$(EPICS_HOST_ARCH)" -DCMAKE_INCLUDE_PATH="$(FLATBUFFERS)/include;$(LIBRDKAFKA)/include;$(EPICS_BASE)/include;$(FMT);$(RAPIDJSON)/include" -DCMAKE_PROGRAM_PATH="$(FLATBUFFERS)/bin/$(EPICS_HOST_ARCH)" -Dpath_include_streaming_data_types="$(STREAMINGDATATYPES)"
