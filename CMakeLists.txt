@@ -55,7 +55,9 @@ endif()
 
 # Yes, there exists also FindGTest.
 # Yes, we do want to use this one instead:
+if(NOT GOOGLETEST_DISABLE)
 find_package(Googletest)
+endif()
 
 add_subdirectory(src)
 
