@@ -37,6 +37,9 @@ PCRE=$(SUPPORT)/pcre/master
 FLATBUFFERS=$(SUPPORT)/flatbuffers/master
 FMT=$(EPICS_ROOT)/libraries/master/fmt
 RAPIDJSON=$(EPICS_ROOT)/libraries/master/rapidjson
+JSONFORMODERNCPP=$(EPICS_ROOT)/libraries/master/jsonformoderncpp
+CONCURRENTQUEUE=$(EPICS_ROOT)/libraries/master/concurrentqueue
+CLI11=$(EPICS_ROOT)/libraries/master/CLI11
 
 EV4_BASE=$(SUPPORT)/EPICS_V4/master
 EPICS_MODULES_PATH=$(EV4_BASE)
