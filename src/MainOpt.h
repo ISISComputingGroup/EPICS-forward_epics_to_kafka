@@ -1,47 +1,38 @@
 #pragma once
-#include "KafkaW.h"
+
+#include "ConfigParser.h"
+#include "KafkaW/KafkaW.h"
 #include "SchemaRegistry.h"
 #include "uri.h"
-#include <rapidjson/document.h>
+#include <memory>
 #include <string>
 #include <vector>
 
-class MainOpt_T;
-
-namespace BrightnESS {
-namespace ForwardEpicsToKafka {
-
-using std::string;
-using std::vector;
+namespace Forwarder {
 
 struct MainOpt {
-  MainOpt();
-  void set_broker(string broker);
+  ConfigSettings MainSettings;
   std::string brokers_as_comma_list() const;
-  uri::URI broker_config{"//localhost:9092/forward_epics_to_kafka_commands"};
-  uri::URI status_uri;
-  vector<uri::URI> brokers;
-  string kafka_gelf = "";
-  string graylog_logger_address = "";
-  string influx_url = "";
-  int conversion_threads = 1;
-  uint32_t conversion_worker_queue_size = 1024;
-  bool help = false;
-  string log_file;
-  string config_file;
-  int forwarder_ix = 0;
-  int write_per_message = 0;
-  int main_poll_interval = 500;
+  std::string KafkaGELFAddress = "";
+  std::string GraylogLoggerAddress = "";
+  std::string InfluxURI = "";
+  std::string LogFilename;
+  std::string ConfigurationFile;
+  uint32_t PeriodMS = 0;
+  uint32_t FakePVPeriodMS = 0;
   uint64_t teamid = 0;
-  std::vector<char> hostname;
+  std::vector<char> Hostname;
   FlatBufs::SchemaRegistry schema_registry;
-  std::shared_ptr<rapidjson::Document> json;
-  int parse_json_file(string config_file);
-  KafkaW::BrokerOpt broker_opt;
+  KafkaW::BrokerSettings broker_opt;
+  void parse_json_file(std::string ConfigurationFile);
+  MainOpt();
+  void set_broker(std::string &Broker);
   void init_logger();
-  friend class ::MainOpt_T;
+
+private:
+  ConfigSettings parse_document(const std::string &filepath);
 };
 
 std::pair<int, std::unique_ptr<MainOpt>> parse_opt(int argc, char **argv);
-}
-}
+
+} // namespace Forwarder

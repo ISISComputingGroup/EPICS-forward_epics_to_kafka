@@ -1,6 +1,6 @@
 #pragma once
 
-#include "KafkaW.h"
+#include "KafkaW/KafkaW.h"
 #include "uri.h"
 #include <atomic>
 #include <chrono>
@@ -8,8 +8,7 @@
 #include <string>
 #include <vector>
 
-namespace BrightnESS {
-namespace ForwardEpicsToKafka {
+namespace Forwarder {
 
 class Remote_T;
 
@@ -27,7 +26,7 @@ struct Listener_impl;
 
 class Listener {
 public:
-  Listener(KafkaW::BrokerOpt bopt, uri::URI uri);
+  Listener(KafkaW::BrokerSettings bopt, URI uri);
   Listener(Listener const &) = delete;
   ~Listener();
   void poll(Callback &cb);
@@ -35,8 +34,7 @@ public:
 
 private:
   std::unique_ptr<Listener_impl> impl;
-  friend class ForwardEpicsToKafka::Remote_T;
+  friend class Remote_T;
 };
-}
 }
 }

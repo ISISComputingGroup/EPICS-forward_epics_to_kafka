@@ -1,3 +1,7 @@
+[![Build Status](https://jenkins.esss.dk/dm/job/ess-dmsc/job/forward-epics-to-kafka/job/master/badge/icon)](https://jenkins.esss.dk/dm/job/ess-dmsc/job/forward-epics-to-kafka/job/master/)
+[![codecov](https://codecov.io/gh/ess-dmsc/forward-epics-to-kafka/branch/master/graph/badge.svg)](https://codecov.io/gh/ess-dmsc/forward-epics-to-kafka)
+[![DOI](https://zenodo.org/badge/81432248.svg)](https://zenodo.org/badge/latestdoi/81432248)
+
 # Forward EPICS to Kafka
 
 - Forward EPICS process variables to Kafka topics
@@ -23,8 +27,6 @@ environment variables (see `src/CMakeLists.txt`):
 - EPICSv4
 - `streaming-data-types`, easiest if cloned parallel to this repository.
   <https://github.com/ess-dmsc/streaming-data-types>
-- pcre2 (e.g. `yum install pcre2 pcre2-devel` or `brew install pcre2`).
-  pcre is supported equally well.
 
 Tooling
 - conan
@@ -55,12 +57,12 @@ remotes can be listed with `conan remote list`.
 Assuming you have `make`:
 
 ```
-conan install <path-to-source>/conan --build=missing
-cmake <path-to-source> [-DREQUIRE_GTEST=TRUE]
+cmake <path-to-source> [-DCONAN_DISABLE=TRUE]
 make
 make docs  # optional
 ```
 
+To skip building the tests target pass cmake `-DBUILD_TESTS=FALSE`
 
 #### Running on macOS
 
@@ -141,6 +143,7 @@ Please note also that you need to have an EPICS PV running:
 - Normative Types Array Int32, name: `forwarder_test_nt_array_int32`
 and they need to update during the runtime of the test.
 
+#### [Running System tests (link)](https://github.com/ess-dmsc/forward-epics-to-kafka/blob/master/system-tests/README.md)
 
 
 ## Performance
@@ -159,18 +162,21 @@ factors.  For systematic tests are to be done.
 
 ### Update Frequency
 
-Note that EPICS is not made for very high frequency updates as it will happily
-lose updates.
+Note that EPICS is not made for very high frequency updates as it will discard updates if there are too many.
 
 That being said, a process variable updated at 10 kHz containing 2048 doubles,
 with 3 EPICS to flatbuffer converters attached and therefore producing 460MB/s
-of data works just fine, utilizing about 30% of each core on my desktop machine
-including the EPICS producer.
+of data works just fine, utilizing about 30% of each core on a reasonable desktop machine.
 
-Higher frequency updates over EPICS should be batched into a PV which contains
-many events at a time.
+Higher frequency updates over EPICS should be batched into a PV structure which can hold multiple events at a time, such as a waveform record.
 
+The Forwarder uses the [MDEL](https://epics.anl.gov/EpicsDocumentation/AppDevManuals/RecordRef/Recordref-5.html#MARKER-9-15) monitor specification for monitoring PV updates rather than the ADEL Archive monitoring specification. This means that every PV update is processed rather than just those that exceed the ADEL. 
 
+### Idle PV Updates
+
+To enable the forwarder to publish PV values periodically even if their values have not been updated use the `pv-update-period <MILLISECONDS>` flag. This runs alongside the normal PV monitor so it will push value updates as well as sending values periodically.
+
+By default this is not enabled. 
 
 ## Usage
 
@@ -178,10 +184,16 @@ many events at a time.
 forward-epics-to-kafka --help
 ```
 
-The forwarder will listen to the Kafka topic given on the command line for
-commands.  Configuration updates are JSON messages.  For example:
+### Commands
 
-Example which adds 2 EPICS PVs via `pva` (default) and a third EPICS variable
+The forwarder will listen to the Kafka topic given on the command line for
+commands.  Configuration updates are JSON messages.
+
+#### Add
+
+Adds PVs to be forwarded to Kafka.
+
+This example adds 2 EPICS PVs via `pva` (default) and a third EPICS variable
 using `ca` Channel Access:
 
 ```
@@ -215,16 +227,35 @@ using `ca` Channel Access:
 ```
 
 The `topic` in the above stream configuration can contain the Kafka broker
-hostname like `//<host>[:port]/<topic>` otherwise the default boker given in
-the configuration file or on the command line is used.
+hostname like `//<host>[:port]/<topic>` otherwise the default broker given in
+the configuration file or at the command line is used.
 
+#### Stop channel
 
-Exit the forwarder:
+Stops a PV being forwarded to Kafka.
+
+```
+{
+  "cmd": "stop_channel",
+  "channel": "<EPICS PV name>"
+}
+```
+
+#### Stop all
+
+Stops all PVs from being forwarded to Kafka.
+
+```
+{"cmd": "stop_all"}
+```
+
+#### Exit
+
+Exits the forwarder.
 
 ```
 {"cmd": "exit"}
 ```
-
 
 ### Using a configuration file
 
@@ -280,6 +311,7 @@ Given are the defaults.
 
 
 ### Forwarding a PV through Multiple Converters
+
 If you pass an array of converters instead, the EPICS PV will be forwarded
 through multiple converters:
 ```
@@ -303,8 +335,6 @@ but you probably want to add it to `CMakeLists.txt`.
 There will be support for dynamic loading of shared objects also soon.
 Beware that converter instances are used from different threads.  If the
 converter instance has state, it must take care of thread safety itself.
-
-
 
 ## Share Converter Instance between Channels
 
@@ -330,17 +360,9 @@ Example:
 }
 ```
 
+## Features Requests
+Feel free to create a GitHub issue if you have a feature request or, even better, implement it
+yourself on a branch and create a pull request!
 
-
-## Features Coming Soon
-
-- Configure options for threading (number of workers, queue lengths, ...)
-- More dynamic scheduling of work
-- Dynamically load converter plugins from shared objects
-
-
-## For the future
-
-Please send any feature requests you have (dominik.werder@psi.ch).
-
-- Optionally read from (the future) configuration service
+## Contributing
+See CONTRIBUTING.md
