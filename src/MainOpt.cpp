@@ -85,9 +85,9 @@ static void addOption(CLI::App &App, std::string const &Name,
     return true;
   };
   CLI::Option *Opt = App.add_option(Name, Fun, Description, Defaulted);
-  Opt->set_custom_option("URI", 1);
+  Opt->type_name("URI")->type_size(1);
   if (Defaulted) {
-    Opt->set_default_str(std::string("//") + URIArg.host_port + "/" +
+    Opt->default_str(std::string("//") + URIArg.host_port + "/" +
                          URIArg.topic);
   }
 }
